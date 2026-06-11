@@ -1,0 +1,3877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0b0a09" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Vector" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Vector — Protocol Log</title>
+
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="%230b0a09" rx="40"/><circle cx="96" cy="96" r="48" fill="none" stroke="%23f5f1ea" stroke-width="6"/><line x1="96" y1="32" x2="96" y2="64" stroke="%23f5f1ea" stroke-width="6"/><line x1="96" y1="128" x2="96" y2="160" stroke="%23f5f1ea" stroke-width="6"/><line x1="32" y1="96" x2="64" y2="96" stroke="%23f5f1ea" stroke-width="6"/><line x1="128" y1="96" x2="160" y2="96" stroke="%23f5f1ea" stroke-width="6"/><circle cx="96" cy="96" r="4" fill="%2300d4ff"/></svg>' />
+<link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="%230b0a09" rx="40"/><circle cx="96" cy="96" r="48" fill="none" stroke="%23f5f1ea" stroke-width="6"/><circle cx="96" cy="96" r="4" fill="%2300d4ff"/></svg>' />
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Vector","short_name":"Vector","start_url":".","display":"standalone","background_color":"%230b0a09","theme_color":"%230b0a09","orientation":"portrait"}' />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=JetBrains+Mono:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/recharts@2.10.4/umd/Recharts.min.js"></script>
+<style>
+  html, body { height: 100%; margin: 0; padding: 0; overscroll-behavior-y: none; }
+  body { background: #0b0a09; color: #f5f1ea; font-family: 'Geist', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
+  .vec-display { font-family: 'Bricolage Grotesque', system-ui, sans-serif; letter-spacing: -0.02em; }
+  .vec-body    { font-family: 'Geist', system-ui, sans-serif; }
+  .vec-mono    { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "ss01","ss02","cv11"; }
+  .vec-grain::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); opacity: 0.4; }
+  .vec-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+  .vec-scroll::-webkit-scrollbar-thumb { background: #2a2622; border-radius: 3px; }
+  .vec-scroll::-webkit-scrollbar-track { background: transparent; }
+  input[type="range"].vec-slider { -webkit-appearance: none; background: transparent; width: 100%; }
+  input[type="range"].vec-slider::-webkit-slider-runnable-track { height: 2px; background: #2a2622; border-radius: 1px; }
+  input[type="range"].vec-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; height: 18px; width: 18px; background: var(--thumb-color, #f5f1ea); border-radius: 50%; margin-top: -8px; border: 2px solid #0b0a09; cursor: pointer; }
+  input[type="range"].vec-slider::-moz-range-track { height: 2px; background: #2a2622; }
+  input[type="range"].vec-slider::-moz-range-thumb { height: 18px; width: 18px; background: var(--thumb-color, #f5f1ea); border-radius: 50%; border: 2px solid #0b0a09; cursor: pointer; }
+  .vec-fade-in { animation: vecFadeIn 0.4s ease-out; }
+  @keyframes vecFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .vec-pulse { animation: vecPulse 2s ease-in-out infinite; }
+  @keyframes vecPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-top { padding-top: env(safe-area-inset-top, 0px); }
+  button, .vec-mono { -webkit-user-select: none; user-select: none; }
+  input, textarea { -webkit-user-select: text; user-select: text; font-size: 16px; }
+  .vec-loader { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: #0b0a09; color: #6b6258; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .animate-spin { animation: spin 1s linear infinite; }
+</style>
+<script>
+window.addEventListener('error', function(e) {
+  var root = document.getElementById('root');
+  if (root) root.innerHTML = '<div style="padding:20px;color:#ff5e8a;font-family:monospace;font-size:11px;line-height:1.6;background:#0b0a09;min-height:100vh;"><div style="color:#00d4ff;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.2em;">load error</div>' + (e.message || 'unknown') + '<br><br>at: ' + (e.filename || '?') + ':' + (e.lineno || '?') + '</div>';
+});
+</script><script>
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    var missing = [];
+    if (typeof React === "undefined") missing.push("React");
+    if (typeof ReactDOM === "undefined") missing.push("ReactDOM");
+    if (typeof Recharts === "undefined") missing.push("Recharts");
+    if (missing.length) {
+      var root = document.getElementById("root");
+      if (root && root.querySelector(".vec-loader")) {
+        root.innerHTML = "<div style=\"padding:20px;color:#ff5e8a;font-family:monospace;font-size:11px;line-height:1.6;background:#0b0a09;min-height:100vh;\"><div style=\"color:#00d4ff;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.2em;\">cdn load failed</div>missing: " + missing.join(", ") + "<br><br>check connection or try refreshing</div>";
+      }
+    }
+  }, 8000);
+});
+</script></head>
+<body>
+<div id="root"><div class="vec-loader">loading vector…</div></div>
+
+<script>
+'use strict';
+
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef
+} = React;
+const {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine
+} = Recharts;
+const Svg = ({
+  size = 16,
+  children,
+  ...p
+}) => /*#__PURE__*/React.createElement("svg", _extends({
+  xmlns: "http://www.w3.org/2000/svg",
+  width: size,
+  height: size,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, p), children);
+const I = {
+  Home: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: "9 22 9 12 15 12 15 22"
+  })),
+  Plus: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M5 12h14"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 5v14"
+  })),
+  X: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M18 6 6 18"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m6 6 12 12"
+  })),
+  Settings: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "3"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+  })),
+  TrendingUp: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("polyline", {
+    points: "22 7 13.5 15.5 8.5 10.5 2 17"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: "16 7 22 7 22 13"
+  })),
+  Sparkles: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4M5.6 18.4l1.4-1.4m10-10 1.4-1.4"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "3"
+  })),
+  Pill: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m8.5 8.5 7 7"
+  })),
+  Brain: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 0 0 12 18Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 0 1 12 18Z"
+  })),
+  Moon: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"
+  })),
+  Flame: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"
+  })),
+  Heart: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+  })),
+  Activity: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("polyline", {
+    points: "22 12 18 12 15 21 9 3 6 12 2 12"
+  })),
+  Dumbbell: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M14.4 14.4 9.6 9.6"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m21.5 21.5-1.4-1.4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3.9 3.9 2.5 2.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"
+  })),
+  Apple: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M10 2c1 .5 2 2 2 5"
+  })),
+  Beaker: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M4.5 3h15"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6 14h12"
+  })),
+  TestTube: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8.5 2h7"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M14.5 16h-5"
+  })),
+  Syringe: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "m18 2 4 4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m17 7 3-3"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m9 11 4 4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m5 19-3 3"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m14 4 6 6"
+  })),
+  Trash: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M3 6h18"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+  })),
+  Loader: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M21 12a9 9 0 1 1-6.219-8.56"
+  })),
+  Alert: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "10"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12",
+    y1: "8",
+    y2: "12"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12.01",
+    y1: "16",
+    y2: "16"
+  })),
+  Circle: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "10"
+  })),
+  Crosshair: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "10"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "22",
+    x2: "18",
+    y1: "12",
+    y2: "12"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "6",
+    x2: "2",
+    y1: "12",
+    y2: "12"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12",
+    y1: "6",
+    y2: "2"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12",
+    y1: "22",
+    y2: "18"
+  })),
+  Waves: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"
+  })),
+  Lightbulb: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M9 18h6"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M10 22h4"
+  })),
+  FileText: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: "14 2 14 8 20 8"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "16",
+    x2: "8",
+    y1: "13",
+    y2: "13"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "16",
+    x2: "8",
+    y1: "17",
+    y2: "17"
+  })),
+  Eye: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "3"
+  })),
+  EyeOff: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M9.88 9.88a3 3 0 1 0 4.24 4.24"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "2",
+    x2: "22",
+    y1: "2",
+    y2: "22"
+  })),
+  Download: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: "7 10 12 15 17 10"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12",
+    y1: "15",
+    y2: "3"
+  })),
+  Upload: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("path", {
+    d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: "17 8 12 3 7 8"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "12",
+    x2: "12",
+    y1: "3",
+    y2: "15"
+  })),
+  Check: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("polyline", {
+    points: "20 6 9 17 4 12"
+  })),
+  Info: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "10"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 16v-4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 8h.01"
+  })),
+  Key: p => /*#__PURE__*/React.createElement(Svg, p, /*#__PURE__*/React.createElement("circle", {
+    cx: "7.5",
+    cy: "15.5",
+    r: "5.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m11.5 11.5 9-9"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m17 5 3 3"
+  }))
+};
+const COLORS = {
+  bg: "#0b0a09",
+  surface: "#141210",
+  surface2: "#1c1916",
+  surface3: "#252119",
+  border: "#2a2622",
+  borderHi: "#3a3530",
+  text: "#f5f1ea",
+  textMute: "#a09484",
+  textDim: "#6b6258",
+  peptides: "#00d4ff",
+  steroids: "#ffaa1a",
+  ancillaries: "#b478ff",
+  sleep: "#7b8bff",
+  other: "#7a8a76",
+  lifestyle: "#00f5a0",
+  mood: "#ff5e8a",
+  health: "#ff8866",
+  warn: "#ff5e8a",
+  success: "#00f5a0"
+};
+const CATEGORIES = {
+  steroids: {
+    label: "Anabolics",
+    color: COLORS.steroids,
+    icon: I.Syringe
+  },
+  peptides: {
+    label: "Peptides",
+    color: COLORS.peptides,
+    icon: I.TestTube
+  },
+  ancillaries: {
+    label: "Ancillaries",
+    color: COLORS.ancillaries,
+    icon: I.Beaker
+  },
+  sleep: {
+    label: "Sleep",
+    color: COLORS.sleep,
+    icon: I.Moon
+  },
+  other: {
+    label: "Other",
+    color: COLORS.other,
+    icon: I.Pill
+  }
+};
+const LIBRARY = [{
+  id: "test-prop",
+  name: "Testosterone Propionate",
+  cat: "steroids",
+  h: 19,
+  dose: 50,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "test-e",
+  name: "Testosterone Enanthate",
+  cat: "steroids",
+  h: 110,
+  dose: 100,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "test-c",
+  name: "Testosterone Cypionate",
+  cat: "steroids",
+  h: 192,
+  dose: 100,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "anavar",
+  name: "Anavar (Oxandrolone)",
+  cat: "steroids",
+  h: 9,
+  dose: 30,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "proviron",
+  name: "Proviron (Mesterolone)",
+  cat: "steroids",
+  h: 13,
+  dose: 50,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "mast-p",
+  name: "Masteron Propionate",
+  cat: "steroids",
+  h: 60,
+  dose: 100,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "mast-e",
+  name: "Masteron Enanthate",
+  cat: "steroids",
+  h: 168,
+  dose: 200,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "primo-e",
+  name: "Primobolan Enanthate",
+  cat: "steroids",
+  h: 240,
+  dose: 200,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "npp",
+  name: "NPP",
+  cat: "steroids",
+  h: 60,
+  dose: 100,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "tren-a",
+  name: "Trenbolone Acetate",
+  cat: "steroids",
+  h: 72,
+  dose: 50,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "anadrol",
+  name: "Anadrol (Oxymetholone)",
+  cat: "steroids",
+  h: 16,
+  dose: 50,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "dbol",
+  name: "Dianabol",
+  cat: "steroids",
+  h: 5,
+  dose: 25,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "eq",
+  name: "Equipoise (Boldenone)",
+  cat: "steroids",
+  h: 336,
+  dose: 200,
+  unit: "mg",
+  route: "IM"
+}, {
+  id: "hgh",
+  name: "HGH (Somatropin)",
+  cat: "peptides",
+  h: 3,
+  dose: 2,
+  unit: "iu",
+  route: "SubQ"
+}, {
+  id: "hcg",
+  name: "HCG",
+  cat: "peptides",
+  h: 30,
+  dose: 250,
+  unit: "iu",
+  route: "SubQ"
+}, {
+  id: "bpc-157",
+  name: "BPC-157",
+  cat: "peptides",
+  h: 4,
+  dose: 250,
+  unit: "mcg",
+  route: "SubQ"
+}, {
+  id: "tb-500",
+  name: "TB-500",
+  cat: "peptides",
+  h: 60,
+  dose: 5,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "kpv",
+  name: "KPV",
+  cat: "peptides",
+  h: 4,
+  dose: 500,
+  unit: "mcg",
+  route: "SubQ"
+}, {
+  id: "ghk-cu",
+  name: "GHK-Cu",
+  cat: "peptides",
+  h: 4,
+  dose: 1,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "reta",
+  name: "Retatrutide",
+  cat: "peptides",
+  h: 144,
+  dose: 4,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "tirz",
+  name: "Tirzepatide",
+  cat: "peptides",
+  h: 120,
+  dose: 5,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "sema",
+  name: "Semaglutide",
+  cat: "peptides",
+  h: 168,
+  dose: 0.5,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "mots-c",
+  name: "MOTS-c",
+  cat: "peptides",
+  h: 8,
+  dose: 5,
+  unit: "mg",
+  route: "SubQ"
+}, {
+  id: "ipam",
+  name: "Ipamorelin",
+  cat: "peptides",
+  h: 2,
+  dose: 200,
+  unit: "mcg",
+  route: "SubQ"
+}, {
+  id: "cjc-1295",
+  name: "CJC-1295 (no DAC)",
+  cat: "peptides",
+  h: 0.5,
+  dose: 100,
+  unit: "mcg",
+  route: "SubQ"
+}, {
+  id: "arimidex",
+  name: "Anastrozole (Arimidex)",
+  cat: "ancillaries",
+  h: 48,
+  dose: 0.5,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "aromasin",
+  name: "Aromasin (Exemestane)",
+  cat: "ancillaries",
+  h: 24,
+  dose: 12.5,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "letro",
+  name: "Letrozole",
+  cat: "ancillaries",
+  h: 48,
+  dose: 1.25,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "tamox",
+  name: "Tamoxifen",
+  cat: "ancillaries",
+  h: 144,
+  dose: 20,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "enclo",
+  name: "Enclomiphene",
+  cat: "ancillaries",
+  h: 24,
+  dose: 12.5,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "ru58841",
+  name: "RU58841",
+  cat: "ancillaries",
+  h: 6,
+  dose: 50,
+  unit: "mg",
+  route: "topical"
+}, {
+  id: "top-fin",
+  name: "Topical Finasteride",
+  cat: "ancillaries",
+  h: 6,
+  dose: 0.25,
+  unit: "mg",
+  route: "topical"
+}, {
+  id: "minox",
+  name: "Minoxidil",
+  cat: "ancillaries",
+  h: 4,
+  dose: 5,
+  unit: "mg",
+  route: "topical"
+}, {
+  id: "isotret",
+  name: "Isotretinoin",
+  cat: "ancillaries",
+  h: 21,
+  dose: 20,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "eszop",
+  name: "Eszopiclone",
+  cat: "sleep",
+  h: 6,
+  dose: 3,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "traz",
+  name: "Trazodone",
+  cat: "sleep",
+  h: 7,
+  dose: 50,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "pregab",
+  name: "Pregabalin",
+  cat: "sleep",
+  h: 6,
+  dose: 150,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "phenibut",
+  name: "Phenibut",
+  cat: "sleep",
+  h: 5,
+  dose: 500,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "hydroxyz",
+  name: "Hydroxyzine",
+  cat: "sleep",
+  h: 20,
+  dose: 25,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "doxepin",
+  name: "Doxepin",
+  cat: "sleep",
+  h: 15,
+  dose: 6,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "quviviq",
+  name: "Daridorexant (Quviviq)",
+  cat: "sleep",
+  h: 8,
+  dose: 50,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "lembo",
+  name: "Lemborexant (Dayvigo)",
+  cat: "sleep",
+  h: 18,
+  dose: 5,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "mirtaz",
+  name: "Mirtazapine",
+  cat: "sleep",
+  h: 30,
+  dose: 7.5,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "melatonin",
+  name: "Melatonin",
+  cat: "sleep",
+  h: 0.7,
+  dose: 0.3,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "caffeine",
+  name: "Caffeine",
+  cat: "other",
+  h: 5,
+  dose: 200,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "modafinil",
+  name: "Modafinil",
+  cat: "other",
+  h: 13,
+  dose: 100,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "armodaf",
+  name: "Armodafinil",
+  cat: "other",
+  h: 14,
+  dose: 75,
+  unit: "mg",
+  route: "oral"
+}, {
+  id: "creatine",
+  name: "Creatine Monohydrate",
+  cat: "other",
+  h: 72,
+  dose: 5,
+  unit: "g",
+  route: "oral"
+}];
+const MOOD_KEYS = [{
+  id: "mood",
+  label: "Mood",
+  inverse: false
+}, {
+  id: "wellbeing",
+  label: "Wellbeing",
+  inverse: false
+}, {
+  id: "anxiety",
+  label: "Anxiety",
+  inverse: true
+}, {
+  id: "aggression",
+  label: "Aggression",
+  inverse: false
+}, {
+  id: "motivation",
+  label: "Motivation",
+  inverse: false
+}, {
+  id: "pump",
+  label: "Pump",
+  inverse: false
+}, {
+  id: "libido",
+  label: "Libido",
+  inverse: false
+}];
+const DEFAULT_TARGETS = {
+  calories: 2800,
+  protein: 220,
+  carbs: 280,
+  fat: 90,
+  water: 3500
+};
+const MODELS = [{
+  id: "claude-haiku-4-5-20251001",
+  label: "Haiku 4.5",
+  desc: "fast · cheap · macro lookups"
+}, {
+  id: "claude-sonnet-4-6",
+  label: "Sonnet 4.6",
+  desc: "balanced · everyday insights"
+}, {
+  id: "claude-opus-4-6",
+  label: "Opus 4.6",
+  desc: "deep analysis"
+}, {
+  id: "claude-opus-4-7",
+  label: "Opus 4.7",
+  desc: "smartest · long patterns"
+}];
+const TRAINING_TYPES = ["push", "pull", "legs", "upper", "lower", "full", "chest", "back", "arms", "shoulders", "cardio", "hiit", "run", "walk", "rucking", "yoga", "stretch", "rest"];
+const todayKey = (d = new Date()) => {
+  const y = d.getFullYear(),
+    m = String(d.getMonth() + 1).padStart(2, "0"),
+    day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+const dateFromKey = k => {
+  const [y, m, d] = k.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+const addDays = (d, n) => {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+};
+const fmtDate = d => d.toLocaleDateString(undefined, {
+  weekday: "short",
+  month: "short",
+  day: "numeric"
+});
+const nowTime = () => new Date().toTimeString().slice(0, 5);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const fmtDose = (d, u) => `${d}${u === "iu" ? " " : ""}${u}`;
+const recentKeys = n => {
+  const o = [];
+  for (let i = 0; i < n; i++) o.push(todayKey(addDays(new Date(), -i)));
+  return o.reverse();
+};
+const blankDay = date => ({
+  date,
+  substances: [],
+  meals: [],
+  hydration_ml: 0,
+  training: [],
+  sexual: {
+    morning_wood: 0,
+    ejaculation: 0
+  },
+  mood: {
+    mood: 5,
+    wellbeing: 5,
+    anxiety: 3,
+    aggression: 3,
+    motivation: 5,
+    pump: 5,
+    libido: 5
+  },
+  health: {
+    fell_asleep: "",
+    woke_up: "",
+    time_awake: 0,
+    sleep_hours: 0,
+    sleep_score: 0,
+    deep_min: 0,
+    rem_min: 0,
+    rhr: 0,
+    hrv: 0,
+    bp_sys: 0,
+    bp_dia: 0,
+    weight: 0
+  },
+  notes: ""
+});
+const STORE_PREFIX = "vector:";
+const store = {
+  get(k) {
+    try {
+      const v = localStorage.getItem(STORE_PREFIX + k);
+      return v ? JSON.parse(v) : null;
+    } catch {
+      return null;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(STORE_PREFIX + k, JSON.stringify(v));
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  del(k) {
+    try {
+      localStorage.removeItem(STORE_PREFIX + k);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  list(prefix) {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORE_PREFIX + prefix)) keys.push(k.slice(STORE_PREFIX.length));
+    }
+    return keys;
+  },
+  rawAll() {
+    const out = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORE_PREFIX)) {
+        try {
+          out[k.slice(STORE_PREFIX.length)] = JSON.parse(localStorage.getItem(k));
+        } catch {}
+      }
+    }
+    return out;
+  },
+  clearAll() {
+    const toDel = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORE_PREFIX)) toDel.push(k);
+    }
+    toDel.forEach(k => localStorage.removeItem(k));
+  }
+};
+const migrateDay = d => {
+  if (!d) return d;
+  if (d.training && !Array.isArray(d.training)) {
+    const t = d.training;
+    d.training = t.type || t.duration ? [{
+      id: uid(),
+      ...t
+    }] : [];
+  }
+  if (!Array.isArray(d.training)) d.training = [];
+  if (!Array.isArray(d.substances)) d.substances = [];
+  if (!Array.isArray(d.meals)) d.meals = [];
+  if (!d.mood) d.mood = blankDay(d.date).mood;
+  if (!d.health) d.health = blankDay(d.date).health;
+  if (!d.sexual) d.sexual = {
+    morning_wood: 0,
+    ejaculation: 0
+  };
+  return d;
+};
+const serumAt = (doses, tMs) => {
+  let total = 0;
+  for (const d of doses) {
+    const dtH = (tMs - d.tMs) / 3.6e6;
+    if (dtH < 0) continue;
+    total += d.dose * Math.pow(0.5, dtH / d.h);
+  }
+  return total;
+};
+const parseHM = t => {
+  if (!t || typeof t !== "string") return null;
+  const [h, m] = t.split(":").map(Number);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+};
+const calcSleepHours = (fell, woke, awake_min) => {
+  const f = parseHM(fell), w = parseHM(woke);
+  if (f == null || w == null) return 0;
+  let mins = w - f;
+  if (mins < 0) mins += 24 * 60;
+  mins -= (Number(awake_min) || 0);
+  return Math.max(0, Math.round((mins / 60) * 100) / 100);
+};
+// Estimate typical steady-state serum level given the user's actual dosing pattern.
+// Uses median dose and median inter-dose interval over the doses array.
+const estimateSteadyState = (doses, halfLifeH) => {
+  if (!doses || doses.length === 0) return 0;
+  const sorted = [...doses].sort((a, b) => a.tMs - b.tMs);
+  const med = arr => { const s = [...arr].sort((a,b)=>a-b); return s.length ? s[Math.floor(s.length/2)] : 0; };
+  const dose = med(sorted.map(d => d.dose));
+  if (sorted.length < 2) return dose; // not enough data, fallback to single-dose peak
+  const intervals = [];
+  for (let i = 1; i < sorted.length; i++) intervals.push((sorted[i].tMs - sorted[i-1].tMs) / 3.6e6);
+  const interval = med(intervals);
+  if (!interval || interval > halfLifeH * 8) return dose; // sparse dosing, no real steady state
+  // SS level (peak just after dose) ≈ dose / (1 - 0.5^(interval/halfLife))
+  const decayPerInterval = Math.pow(0.5, interval / halfLifeH);
+  if (decayPerInterval >= 0.999) return dose; // half-life << interval: each dose clears
+  return dose / (1 - decayPerInterval);
+};
+// Returns 'rising' | 'falling' | 'steady' based on slope around now
+const trendAt = (doses, tMs) => {
+  const before = serumAt(doses, tMs - 1.5 * 3.6e6);
+  const after = serumAt(doses, tMs + 1.5 * 3.6e6);
+  if (after > before * 1.05) return "rising";
+  if (after < before * 0.95) return "falling";
+  return "steady";
+};
+const hoursSinceLastDose = (doses, tMs) => {
+  if (!doses || !doses.length) return null;
+  const last = Math.max(...doses.filter(d => d.tMs <= tMs).map(d => d.tMs));
+  if (!isFinite(last)) return null;
+  return (tMs - last) / 3.6e6;
+};
+const callClaude = async ({
+  apiKey,
+  model,
+  prompt,
+  system,
+  maxTokens = 1500
+}) => {
+  if (!apiKey) throw new Error("API key not set. Open settings → paste your Anthropic key.");
+  const body = {
+    model: model || "claude-sonnet-4-6",
+    max_tokens: maxTokens,
+    messages: [{
+      role: "user",
+      content: prompt
+    }]
+  };
+  if (system) body.system = system;
+  const ctrl = new AbortController();
+  const timeoutMs = 90000;
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify(body),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") throw new Error(`Timeout after ${timeoutMs/1000}s — try a smaller range or different model`);
+    throw new Error(`Network fail: ${e.name || ""} ${e.message || "fetch failed"} (model=${body.model}, bodyKB=${Math.round(JSON.stringify(body).length/1024)})`);
+  }
+  clearTimeout(timer);
+  let rawText;
+  try {
+    rawText = await res.text();
+  } catch (e) {
+    throw new Error(`Read fail (HTTP ${res.status}): ${e.message}`);
+  }
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    throw new Error(`Bad JSON (HTTP ${res.status}): ${rawText.slice(0, 200)}`);
+  }
+  if (!res.ok || data?.error) throw new Error(`HTTP ${res.status}: ${data?.error?.type || ""} ${data?.error?.message || rawText.slice(0,200)}`);
+  if (!data?.content || !Array.isArray(data.content)) throw new Error(`Unexpected response: ${rawText.slice(0,200)}`);
+  return data.content.map(c => c.type === "text" ? c.text : "").filter(Boolean).join("\n");
+};
+const estimateMacros = async (text, settings) => {
+  const sys = `You are a precise nutrition database. Reply with ONLY a single JSON object, no prose, no markdown fences. Schema: {"calories": number, "protein": number, "carbs": number, "fat": number, "summary": "brief"}. All numbers are plain integers/decimals (no units, no quotes). Values describe the entire portion.`;
+  const out = await callClaude({
+    apiKey: settings.apiKey,
+    model: settings.macroModel || "claude-haiku-4-5-20251001",
+    prompt: `Food: ${text}`,
+    system: sys,
+    maxTokens: 400
+  });
+  const first = out.indexOf("{"),
+    last = out.lastIndexOf("}");
+  if (first === -1 || last === -1) throw new Error(`No JSON in: ${out.slice(0, 80)}`);
+  let parsed;
+  try {
+    parsed = JSON.parse(out.slice(first, last + 1));
+  } catch {
+    throw new Error(`Parse fail: ${out.slice(first, first + 80)}`);
+  }
+  const num = v => {
+    const n = typeof v === "number" ? v : parseFloat(String(v).replace(/[^\d.-]/g, ""));
+    return isNaN(n) ? 0 : Math.max(0, n);
+  };
+  return {
+    calories: Math.round(num(parsed.calories)),
+    protein: Math.round(num(parsed.protein)),
+    carbs: Math.round(num(parsed.carbs)),
+    fat: Math.round(num(parsed.fat)),
+    summary: String(parsed.summary || "")
+  };
+};
+const generateInsights = async (logs, range, customPrompt, settings) => {
+  const sys = `You are a sharp, no-fluff health analyst writing for a knowledgeable user fluent in PED/peptide pharmacology and sleep architecture. Skip safety boilerplate; the user knows the basics. Be direct, technical, specific. Use markdown headers (##) and bullet points. Identify patterns, correlations, and concrete next steps.`;
+  const compact = logs.map(d => ({
+    date: d.date,
+    subs: d.substances?.map(s => `${s.name} ${s.dose}${s.unit}@${s.time}`) || [],
+    mood: d.mood,
+    sleep: d.health?.sleep_hours ? `${d.health.sleep_hours}h, deep:${d.health.deep_min}m, rem:${d.health.rem_min}m, awake_during:${d.health.time_awake || 0}m, fell:${d.health.fell_asleep || "?"}, woke:${d.health.woke_up || "?"}` : null,
+    rhr: d.health?.rhr || null,
+    hrv: d.health?.hrv || null,
+    bp: d.health?.bp_sys ? `${d.health.bp_sys}/${d.health.bp_dia}` : null,
+    weight: d.health?.weight || null,
+    training: Array.isArray(d.training) && d.training.length ? d.training.map(t => `${t.type} ${t.duration}m i${t.intensity}`).join(" + ") : null,
+    mw: d.sexual?.morning_wood,
+    ej: d.sexual?.ejaculation,
+    notes: d.notes || null
+  }));
+  const userPrompt = customPrompt ? `${customPrompt}\n\nDATA (last ${range} days):\n${JSON.stringify(compact, null, 1)}` : `Analyze the last ${range} days of logs. Identify trends, correlations between substances/sleep/mood/training, offer specific actionable observations.\n\nDATA:\n${JSON.stringify(compact, null, 1)}`;
+  return await callClaude({
+    apiKey: settings.apiKey,
+    model: settings.insightsModel || "claude-sonnet-4-6",
+    prompt: userPrompt,
+    system: sys,
+    maxTokens: 2000
+  });
+};
+const testApiKey = async (apiKey, model) => {
+  await callClaude({
+    apiKey,
+    model: model || "claude-haiku-4-5-20251001",
+    prompt: "Reply with the single word: OK",
+    maxTokens: 10
+  });
+  return true;
+};
+
+// ──────────── PRIMITIVES ────────────
+const Card = ({
+  children,
+  className = "",
+  style = {}
+}) => /*#__PURE__*/React.createElement("div", {
+  className: `relative ${className}`,
+  style: {
+    background: COLORS.surface,
+    border: `1px solid ${COLORS.border}`,
+    borderRadius: 14,
+    ...style
+  }
+}, children);
+const Button = ({
+  children,
+  onClick,
+  variant = "default",
+  className = "",
+  size = "md",
+  disabled = false,
+  style = {}
+}) => {
+  const sizes = {
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-4 py-2 text-sm",
+    lg: "px-5 py-3 text-sm"
+  };
+  const variants = {
+    default: {
+      bg: COLORS.surface2,
+      fg: COLORS.text,
+      br: COLORS.border
+    },
+    primary: {
+      bg: COLORS.text,
+      fg: COLORS.bg,
+      br: COLORS.text
+    },
+    ghost: {
+      bg: "transparent",
+      fg: COLORS.textMute,
+      br: "transparent"
+    },
+    danger: {
+      bg: "transparent",
+      fg: COLORS.warn,
+      br: COLORS.border
+    },
+    success: {
+      bg: COLORS.success + "22",
+      fg: COLORS.success,
+      br: COLORS.success + "55"
+    }
+  };
+  const v = variants[variant];
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: onClick,
+    disabled: disabled,
+    className: `${sizes[size]} vec-body rounded-md transition-all ${disabled ? "opacity-40 cursor-not-allowed" : "hover:opacity-80 active:scale-[0.98]"} ${className}`,
+    style: {
+      background: v.bg,
+      color: v.fg,
+      border: `1px solid ${v.br}`,
+      ...style
+    }
+  }, children);
+};
+const Input = ({
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  className = "",
+  style = {}
+}) => /*#__PURE__*/React.createElement("input", {
+  type: type,
+  value: value,
+  onChange: e => onChange(type === "number" ? e.target.value === "" ? "" : Number(e.target.value) : e.target.value),
+  placeholder: placeholder,
+  className: `vec-body w-full px-3 py-2 text-sm rounded-md outline-none focus:border-[#3a3530] ${className}`,
+  style: {
+    background: COLORS.surface2,
+    color: COLORS.text,
+    border: `1px solid ${COLORS.border}`,
+    ...style
+  }
+});
+const Slider = ({
+  value,
+  onChange,
+  min = 0,
+  max = 10,
+  color = COLORS.text
+}) => /*#__PURE__*/React.createElement("input", {
+  type: "range",
+  min: min,
+  max: max,
+  value: value,
+  onChange: e => onChange(Number(e.target.value)),
+  className: "vec-slider",
+  style: {
+    "--thumb-color": color,
+    "--thumb-glow": color + "66"
+  }
+});
+const Pill = ({
+  children,
+  color = COLORS.textMute,
+  onClick,
+  active = false,
+  className = ""
+}) => /*#__PURE__*/React.createElement("button", {
+  onClick: onClick,
+  className: `vec-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full transition-all whitespace-nowrap ${className}`,
+  style: {
+    background: active ? color + "22" : "transparent",
+    color: active ? color : COLORS.textMute,
+    border: `1px solid ${active ? color + "55" : COLORS.border}`
+  }
+}, children);
+const Section = ({
+  title,
+  sub,
+  right,
+  children,
+  accent = COLORS.text
+}) => /*#__PURE__*/React.createElement("div", {
+  className: "vec-fade-in"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "flex items-end justify-between mb-3 px-1"
+}, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+  style: {
+    color: COLORS.textDim
+  }
+}, sub), /*#__PURE__*/React.createElement("div", {
+  className: "vec-display text-lg font-semibold",
+  style: {
+    color: COLORS.text
+  }
+}, /*#__PURE__*/React.createElement("span", {
+  style: {
+    color: accent
+  }
+}, "// "), title)), right), children);
+const StatTile = ({
+  label,
+  value,
+  unit,
+  color = COLORS.text,
+  sub,
+  icon: Icon
+}) => /*#__PURE__*/React.createElement("div", {
+  className: "p-3 rounded-md",
+  style: {
+    background: COLORS.surface2,
+    border: `1px solid ${COLORS.border}`
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  className: "flex items-center justify-between mb-1"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-[10px] uppercase tracking-wider",
+  style: {
+    color: COLORS.textDim
+  }
+}, label), Icon && /*#__PURE__*/React.createElement(Icon, {
+  size: 11,
+  style: {
+    color: COLORS.textDim
+  }
+})), /*#__PURE__*/React.createElement("div", {
+  className: "flex items-baseline gap-1"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-xl font-semibold",
+  style: {
+    color
+  }
+}, value), unit && /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-xs",
+  style: {
+    color: COLORS.textMute
+  }
+}, unit)), sub && /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-[10px] mt-1",
+  style: {
+    color: COLORS.textDim
+  }
+}, sub));
+
+// ──────────── SUBSTANCE PICKER & EDITOR ────────────
+const SubstancePicker = ({
+  open,
+  onClose,
+  onPick
+}) => {
+  const [filter, setFilter] = useState("all");
+  const [q, setQ] = useState("");
+  const filtered = useMemo(() => LIBRARY.filter(s => {
+    if (filter !== "all" && s.cat !== filter) return false;
+    if (q && !s.name.toLowerCase().includes(q.toLowerCase())) return false;
+    return true;
+  }), [filter, q]);
+  if (!open) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4",
+    style: {
+      background: "#000a"
+    },
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: e => e.stopPropagation(),
+    className: "w-full sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden",
+    style: {
+      background: COLORS.surface,
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between p-4 border-b",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Library"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-lg font-semibold"
+  }, "Add Substance")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "p-1.5 rounded",
+    style: {
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.X, {
+    size: 18
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 space-y-3 border-b",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement(Input, {
+    value: q,
+    onChange: setQ,
+    placeholder: "Search compound\u2026"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5 overflow-x-auto vec-scroll pb-1"
+  }, /*#__PURE__*/React.createElement(Pill, {
+    onClick: () => setFilter("all"),
+    active: filter === "all",
+    color: COLORS.text
+  }, "All"), Object.entries(CATEGORIES).map(([k, c]) => /*#__PURE__*/React.createElement(Pill, {
+    key: k,
+    onClick: () => setFilter(k),
+    active: filter === k,
+    color: c.color
+  }, c.label)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 overflow-y-auto vec-scroll"
+  }, filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "p-8 text-center vec-mono text-xs",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "No matches"), filtered.map(s => {
+    const cat = CATEGORIES[s.cat];
+    return /*#__PURE__*/React.createElement("button", {
+      key: s.id,
+      onClick: () => onPick(s),
+      className: "w-full flex items-center justify-between px-4 py-3 hover:bg-[#1c1916] transition-colors text-left",
+      style: {
+        borderBottom: `1px solid ${COLORS.border}`
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-1 h-8 rounded-full",
+      style: {
+        background: cat.color
+      }
+    }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "vec-body text-sm font-medium"
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] mt-0.5",
+      style: {
+        color: COLORS.textDim
+      }
+    }, cat.label.toLowerCase(), " \xB7 t\xBD ", s.h, "h \xB7 ", s.route))), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-xs",
+      style: {
+        color: cat.color
+      }
+    }, fmtDose(s.dose, s.unit)));
+  }))));
+};
+const SubstanceEditor = ({
+  open,
+  onClose,
+  onSave,
+  prefill
+}) => {
+  const [dose, setDose] = useState(0);
+  const [unit, setUnit] = useState("mg");
+  const [time, setTime] = useState(nowTime());
+  const [route, setRoute] = useState("oral");
+  const [notes, setNotes] = useState("");
+  useEffect(() => {
+    if (prefill) {
+      setDose(prefill.dose);
+      setUnit(prefill.unit);
+      setTime(prefill.time || nowTime());
+      setRoute(prefill.route);
+      setNotes(prefill.notes || "");
+    }
+  }, [prefill]);
+  if (!open || !prefill) return null;
+  const cat = CATEGORIES[prefill.cat];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4",
+    style: {
+      background: "#000a"
+    },
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: e => e.stopPropagation(),
+    className: "w-full sm:max-w-md",
+    style: {
+      background: COLORS.surface,
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-b flex items-start gap-3",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-1 h-10 rounded-full",
+    style: {
+      background: cat.color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: cat.color
+    }
+  }, cat.label), /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-lg font-semibold"
+  }, prefill.name), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] mt-0.5",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "half-life ", prefill.h, "h")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "p-1.5",
+    style: {
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.X, {
+    size: 16
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "col-span-2"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Dose"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: dose,
+    onChange: setDose
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Unit"), /*#__PURE__*/React.createElement("select", {
+    value: unit,
+    onChange: e => setUnit(e.target.value),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, ["mg", "mcg", "iu", "g", "ml"].map(u => /*#__PURE__*/React.createElement("option", {
+    key: u
+  }, u))))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Time"), /*#__PURE__*/React.createElement(Input, {
+    type: "time",
+    value: time,
+    onChange: setTime
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Route"), /*#__PURE__*/React.createElement("select", {
+    value: route,
+    onChange: e => setRoute(e.target.value),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, ["oral", "IM", "SubQ", "topical", "sublingual", "intranasal"].map(r => /*#__PURE__*/React.createElement("option", {
+    key: r
+  }, r))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Notes (optional)"), /*#__PURE__*/React.createElement(Input, {
+    value: notes,
+    onChange: setNotes,
+    placeholder: "e.g. left delt, with food"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t flex gap-2 justify-end",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: () => onSave({
+      ...prefill,
+      dose,
+      unit,
+      time,
+      route,
+      notes
+    })
+  }, "Log"))));
+};
+
+// ──────────── SERUM CURVE ────────────
+const SerumCurve = ({
+  allDays
+}) => {
+  const compoundsData = useMemo(() => {
+    const byCompound = {};
+    const cutoff = Date.now() - 30 * 24 * 3.6e6;
+    for (const d of allDays) {
+      const dateBase = dateFromKey(d.date).getTime();
+      for (const s of d.substances || []) {
+        if (!s.time) continue;
+        const [hh, mm] = s.time.split(":").map(Number);
+        const tMs = dateBase + hh * 3.6e6 + mm * 6e4;
+        if (tMs < cutoff) continue;
+        const key = s.libraryId || s.id;
+        if (!byCompound[key]) byCompound[key] = {
+          name: s.name,
+          cat: s.cat,
+          h: s.h,
+          doses: [],
+          unit: s.unit
+        };
+        byCompound[key].doses.push({
+          tMs,
+          dose: s.dose,
+          h: s.h
+        });
+      }
+    }
+    return byCompound;
+  }, [allDays]);
+  const chartData = useMemo(() => {
+    const compounds = Object.entries(compoundsData);
+    if (!compounds.length) return [];
+    const now = Date.now();
+    const rows = [];
+    // Pre-compute steady state per compound for normalization
+    const ssMap = {};
+    for (const [key, c] of compounds) ssMap[key] = estimateSteadyState(c.doses, c.h);
+    for (let dt = -12; dt <= 48; dt += 0.5) {
+      const tMs = now + dt * 3.6e6;
+      const row = {
+        t: dt
+      };
+      for (const [key, c] of compounds) {
+        const level = serumAt(c.doses, tMs);
+        const ss = ssMap[key];
+        row[key] = ss ? Math.round(level / ss * 100) : 0;
+      }
+      rows.push(row);
+    }
+    return rows;
+  }, [compoundsData]);
+  const compounds = Object.entries(compoundsData);
+  const activeNow = compounds.filter(([k, c]) => {
+    const lvl = serumAt(c.doses, Date.now());
+    const peak = Math.max(...c.doses.map(d => d.dose));
+    return peak > 0 && lvl / peak > 0.05;
+  });
+  if (!compounds.length) {
+    return /*#__PURE__*/React.createElement(Card, {
+      className: "p-6 text-center"
+    }, /*#__PURE__*/React.createElement(I.Waves, {
+      size: 24,
+      style: {
+        color: COLORS.textDim,
+        margin: "0 auto 8px"
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-xs",
+      style: {
+        color: COLORS.textDim
+      }
+    }, "NO ACTIVE COMPOUNDS"), /*#__PURE__*/React.createElement("div", {
+      className: "vec-body text-sm mt-1",
+      style: {
+        color: COLORS.textMute
+      }
+    }, "Log a substance to see serum decay curves"));
+  }
+  return /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline justify-between mb-2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Pharmacokinetic Estimate"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-base font-semibold"
+  }, "Active Serum Levels")), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "% of steady-state")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 200
+    }
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(LineChart, {
+    data: chartData,
+    margin: {
+      top: 5,
+      right: 0,
+      left: -28,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    stroke: COLORS.border,
+    strokeDasharray: "2 4",
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "t",
+    type: "number",
+    domain: [-12, 48],
+    ticks: [-12, -6, 0, 6, 12, 24, 36, 48],
+    tickFormatter: v => v === 0 ? "NOW" : `${v > 0 ? "+" : ""}${v}h`,
+    tick: {
+      fill: COLORS.textDim,
+      fontSize: 10,
+      fontFamily: "JetBrains Mono"
+    },
+    stroke: COLORS.border
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    domain: [0, 'auto'],
+    tick: {
+      fill: COLORS.textDim,
+      fontSize: 10,
+      fontFamily: "JetBrains Mono"
+    },
+    stroke: COLORS.border
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    contentStyle: {
+      background: COLORS.surface2,
+      border: `1px solid ${COLORS.borderHi}`,
+      borderRadius: 8,
+      fontFamily: "JetBrains Mono",
+      fontSize: 11
+    },
+    labelFormatter: v => v === 0 ? "NOW" : `${v > 0 ? "+" : ""}${v}h`,
+    formatter: (v, name) => [`${Math.round(v)}% of steady`, compoundsData[name]?.name || name]
+  }), /*#__PURE__*/React.createElement(ReferenceLine, {
+    y: 100,
+    stroke: COLORS.textDim,
+    strokeDasharray: "3 3",
+    label: { value: "steady", fill: COLORS.textDim, fontSize: 9, position: "right" }
+  }), /*#__PURE__*/React.createElement(ReferenceLine, {
+    x: 0,
+    stroke: COLORS.text,
+    strokeDasharray: "2 2"
+  }), compounds.map(([k, c]) => /*#__PURE__*/React.createElement(Line, {
+    key: k,
+    type: "monotone",
+    dataKey: k,
+    stroke: CATEGORIES[c.cat]?.color || COLORS.text,
+    strokeWidth: 1.5,
+    dot: false,
+    isAnimationActive: false
+  }))))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 pt-3 border-t space-y-2",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-1",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Active now (", activeNow.length, ")"), activeNow.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-xs",
+    style: { color: COLORS.textMute }
+  }, "Nothing currently above trace levels."), activeNow.map(([k, c]) => {
+    const now = Date.now();
+    const lvl = serumAt(c.doses, now);
+    const ss = estimateSteadyState(c.doses, c.h);
+    const trend = trendAt(c.doses, now);
+    const hSince = hoursSinceLastDose(c.doses, now);
+    const color = CATEGORIES[c.cat]?.color || COLORS.text;
+    const unit = c.unit || "mg";
+    // Phase label
+    let phase, phaseColor = COLORS.textDim;
+    if (ss > 0) {
+      const ratio = lvl / ss;
+      if (c.doses.length < 3 && ratio < 0.7) { phase = "ramping up"; phaseColor = COLORS.warn; }
+      else if (ratio > 1.15 && trend === "rising") { phase = "near peak"; phaseColor = color; }
+      else if (ratio > 0.85 && ratio < 1.15) { phase = "steady"; phaseColor = COLORS.health; }
+      else if (ratio < 0.5) { phase = "near trough"; phaseColor = COLORS.textMute; }
+      else if (trend === "falling") { phase = "declining"; phaseColor = COLORS.textMute; }
+      else { phase = "rising"; phaseColor = color; }
+    } else {
+      phase = "active"; phaseColor = color;
+    }
+    const trendArrow = trend === "rising" ? "↗" : trend === "falling" ? "↘" : "→";
+    const lvlDisp = lvl >= 10 ? Math.round(lvl) : (Math.round(lvl * 100) / 100);
+    const ssDisp = ss >= 10 ? Math.round(ss) : (Math.round(ss * 100) / 100);
+    const sinceDisp = hSince == null ? "—" : hSince < 1 ? `${Math.round(hSince * 60)}m ago` : hSince < 48 ? `${Math.round(hSince)}h ago` : `${Math.round(hSince/24)}d ago`;
+    return /*#__PURE__*/React.createElement("div", {
+      key: k,
+      className: "rounded-lg p-2.5",
+      style: {
+        background: color + "0F",
+        border: `1px solid ${color}33`
+      }
+    },
+      /*#__PURE__*/React.createElement("div", { className: "flex items-center justify-between mb-1.5" },
+        /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-2" },
+          /*#__PURE__*/React.createElement(I.Circle, { size: 7, fill: color, stroke: "none" }),
+          /*#__PURE__*/React.createElement("span", { className: "vec-body text-sm font-medium" }, c.name)
+        ),
+        /*#__PURE__*/React.createElement("span", {
+          className: "vec-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded",
+          style: { color: phaseColor, background: phaseColor + "1A" }
+        }, trendArrow, " ", phase)
+      ),
+      /*#__PURE__*/React.createElement("div", { className: "flex items-baseline gap-3 flex-wrap" },
+        /*#__PURE__*/React.createElement("div", null,
+          /*#__PURE__*/React.createElement("span", { className: "vec-mono text-base font-semibold", style: { color } }, lvlDisp),
+          /*#__PURE__*/React.createElement("span", { className: "vec-mono text-[10px] ml-1", style: { color: COLORS.textDim } }, unit, " active")
+        ),
+        ss > 0 && /*#__PURE__*/React.createElement("div", { className: "vec-mono text-[10px]", style: { color: COLORS.textMute } },
+          "steady ≈ ", ssDisp, " ", unit
+        ),
+        /*#__PURE__*/React.createElement("div", { className: "vec-mono text-[10px]", style: { color: COLORS.textMute } },
+          "last dose ", sinceDisp
+        )
+      )
+    );
+  })));
+};
+
+// ──────────── MOOD ────────────
+const MoodRing = ({
+  mood
+}) => {
+  const data = MOOD_KEYS.map(k => ({
+    key: k.label,
+    value: k.inverse ? 10 - mood[k.id] : mood[k.id],
+    raw: mood[k.id]
+  }));
+  return /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline justify-between mb-1"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "State Vector"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-base font-semibold"
+  }, "Today's Mood Profile"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 220
+    }
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(RadarChart, {
+    data: data,
+    margin: {
+      top: 10,
+      right: 30,
+      bottom: 10,
+      left: 30
+    }
+  }, /*#__PURE__*/React.createElement(PolarGrid, {
+    stroke: COLORS.border
+  }), /*#__PURE__*/React.createElement(PolarAngleAxis, {
+    dataKey: "key",
+    tick: {
+      fill: COLORS.textMute,
+      fontSize: 10,
+      fontFamily: "Geist"
+    }
+  }), /*#__PURE__*/React.createElement(PolarRadiusAxis, {
+    domain: [0, 10],
+    tick: false,
+    axisLine: false
+  }), /*#__PURE__*/React.createElement(Radar, {
+    dataKey: "value",
+    stroke: COLORS.mood,
+    fill: COLORS.mood,
+    fillOpacity: 0.25
+  })))));
+};
+const MoodSliders = ({
+  mood,
+  onChange
+}) => /*#__PURE__*/React.createElement(Card, {
+  className: "p-4 space-y-3"
+}, MOOD_KEYS.map(k => /*#__PURE__*/React.createElement("div", {
+  key: k.id
+}, /*#__PURE__*/React.createElement("div", {
+  className: "flex justify-between items-baseline mb-1"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "vec-body text-sm"
+}, k.label), /*#__PURE__*/React.createElement("div", {
+  className: "vec-mono text-sm",
+  style: {
+    color: COLORS.mood
+  }
+}, mood[k.id], /*#__PURE__*/React.createElement("span", {
+  style: {
+    color: COLORS.textDim
+  }
+}, "/10"))), /*#__PURE__*/React.createElement(Slider, {
+  value: mood[k.id],
+  onChange: v => onChange(k.id, v),
+  color: COLORS.mood
+}))));
+
+// ──────────── SUBSTANCE LIST ────────────
+const SubstanceList = ({
+  substances,
+  onRemove
+}) => {
+  if (!substances || !substances.length) {
+    return /*#__PURE__*/React.createElement(Card, {
+      className: "p-6 text-center"
+    }, /*#__PURE__*/React.createElement(I.TestTube, {
+      size: 20,
+      style: {
+        color: COLORS.textDim,
+        margin: "0 auto 8px"
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-xs",
+      style: {
+        color: COLORS.textDim
+      }
+    }, "NO SUBSTANCES LOGGED"));
+  }
+  const grouped = substances.reduce((acc, s) => {
+    (acc[s.cat] = acc[s.cat] || []).push(s);
+    return acc;
+  }, {});
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, Object.entries(grouped).map(([cat, items]) => {
+    const c = CATEGORIES[cat] || CATEGORIES.other;
+    return /*#__PURE__*/React.createElement(Card, {
+      key: cat,
+      className: "overflow-hidden"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "px-3 py-2 flex items-center gap-2 border-b",
+      style: {
+        borderColor: COLORS.border,
+        background: COLORS.surface2
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-1.5 h-1.5 rounded-full",
+      style: {
+        background: c.color
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+      style: {
+        color: c.color
+      }
+    }, c.label), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px]",
+      style: {
+        color: COLORS.textDim
+      }
+    }, "\xB7 ", items.length)), /*#__PURE__*/React.createElement("div", null, items.map(s => /*#__PURE__*/React.createElement("div", {
+      key: s.id,
+      className: "flex items-center justify-between px-3 py-2.5",
+      style: {
+        borderBottom: `1px solid ${COLORS.border}`
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex-1 min-w-0"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "vec-body text-sm font-medium truncate"
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] mt-0.5",
+      style: {
+        color: COLORS.textDim
+      }
+    }, fmtDose(s.dose, s.unit), " \xB7 ", s.route, " \xB7 ", s.time, s.notes && /*#__PURE__*/React.createElement("span", null, " \xB7 ", s.notes))), /*#__PURE__*/React.createElement("button", {
+      onClick: () => onRemove(s.id),
+      className: "p-1.5",
+      style: {
+        color: COLORS.textMute
+      }
+    }, /*#__PURE__*/React.createElement(I.Trash, {
+      size: 14
+    }))))));
+  }));
+};
+
+// ──────────── FOOD LOGGER ────────────
+const computeTotals = meals => meals.reduce((a, e) => ({
+  kcal: a.kcal + (e.kcal || 0),
+  protein: a.protein + (e.protein || 0),
+  carbs: a.carbs + (e.carbs || 0),
+  fat: a.fat + (e.fat || 0)
+}), {
+  kcal: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0
+});
+const FoodLogger = ({
+  meals,
+  hydration,
+  onMealsChange,
+  onHydrationChange,
+  settings
+}) => {
+  const [mode, setMode] = useState("ai");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [m, setM] = useState({
+    name: "",
+    kcal: "",
+    protein: "",
+    carbs: "",
+    fat: ""
+  });
+  const hasKey = Boolean(settings.apiKey);
+  const totals = computeTotals(meals);
+  const addEntry = entry => {
+    onMealsChange([...meals, {
+      ...entry,
+      id: uid(),
+      time: nowTime()
+    }]);
+  };
+  const onAI = async () => {
+    if (!text.trim()) return;
+    if (!hasKey) {
+      setErr("Add API key in settings to enable AI");
+      return;
+    }
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await estimateMacros(text, settings);
+      addEntry({
+        name: res.summary || text.slice(0, 40),
+        kcal: res.calories,
+        protein: res.protein,
+        carbs: res.carbs,
+        fat: res.fat
+      });
+      setText("");
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const onManual = () => {
+    if (!m.name.trim()) return;
+    addEntry({
+      name: m.name,
+      kcal: Number(m.kcal) || 0,
+      protein: Number(m.protein) || 0,
+      carbs: Number(m.carbs) || 0,
+      fat: Number(m.fat) || 0
+    });
+    setM({
+      name: "",
+      kcal: "",
+      protein: "",
+      carbs: "",
+      fat: ""
+    });
+  };
+  const removeEntry = id => onMealsChange(meals.filter(e => e.id !== id));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-4 gap-2"
+  }, /*#__PURE__*/React.createElement(StatTile, {
+    label: "kcal",
+    value: totals.kcal,
+    unit: `/${settings.targets?.calories || DEFAULT_TARGETS.calories}`,
+    color: COLORS.lifestyle
+  }), /*#__PURE__*/React.createElement(StatTile, {
+    label: "P",
+    value: totals.protein,
+    unit: "g",
+    color: COLORS.lifestyle
+  }), /*#__PURE__*/React.createElement(StatTile, {
+    label: "C",
+    value: totals.carbs,
+    unit: "g",
+    color: COLORS.lifestyle
+  }), /*#__PURE__*/React.createElement(StatTile, {
+    label: "F",
+    value: totals.fat,
+    unit: "g",
+    color: COLORS.lifestyle
+  })), /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1 mb-3 p-0.5 rounded-md",
+    style: {
+      background: COLORS.surface2
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode("ai"),
+    className: "flex-1 vec-mono text-[11px] py-1.5 rounded uppercase tracking-wider",
+    style: {
+      background: mode === "ai" ? COLORS.surface : "transparent",
+      color: mode === "ai" ? COLORS.text : COLORS.textMute
+    }
+  }, "AI Estimate"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMode("manual"),
+    className: "flex-1 vec-mono text-[11px] py-1.5 rounded uppercase tracking-wider",
+    style: {
+      background: mode === "manual" ? COLORS.surface : "transparent",
+      color: mode === "manual" ? COLORS.text : COLORS.textMute
+    }
+  }, "Manual")), mode === "ai" ? /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement(Input, {
+    value: text,
+    onChange: setText,
+    placeholder: "e.g. 8oz ribeye, 1 cup white rice, broccoli"
+  }), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: onAI,
+    disabled: busy || !text.trim(),
+    className: "w-full"
+  }, busy ? /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Loader, {
+    size: 14,
+    className: "vec-spin"
+  }), " estimating\u2026") : /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Sparkles, {
+    size: 14
+  }), " Estimate Macros")), !hasKey && /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px]",
+    style: {
+      color: COLORS.warn
+    }
+  }, "Add API key in settings to enable AI estimation"), err && /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px]",
+    style: {
+      color: COLORS.warn
+    }
+  }, err)) : /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement(Input, {
+    value: m.name,
+    onChange: v => setM({
+      ...m,
+      name: v
+    }),
+    placeholder: "Food name"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-4 gap-2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase mb-1 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "kcal"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: m.kcal,
+    onChange: v => setM({
+      ...m,
+      kcal: v
+    })
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase mb-1 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "P"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: m.protein,
+    onChange: v => setM({
+      ...m,
+      protein: v
+    })
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase mb-1 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "C"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: m.carbs,
+    onChange: v => setM({
+      ...m,
+      carbs: v
+    })
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase mb-1 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "F"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: m.fat,
+    onChange: v => setM({
+      ...m,
+      fat: v
+    })
+  }))), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: onManual,
+    disabled: !m.name.trim(),
+    className: "w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Plus, {
+    size: 14
+  }), " Add Entry")))), meals.length > 0 && /*#__PURE__*/React.createElement(Card, {
+    className: "overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "px-3 py-2 flex items-center justify-between border-b",
+    style: {
+      borderColor: COLORS.border,
+      background: COLORS.surface2
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.lifestyle
+    }
+  }, "Meals \xB7 ", meals.length), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, totals.kcal, " kcal")), meals.map(e => /*#__PURE__*/React.createElement("div", {
+    key: e.id,
+    className: "flex items-center justify-between px-3 py-2.5",
+    style: {
+      borderBottom: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-sm font-medium truncate"
+  }, e.name), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] mt-0.5",
+    style: {
+      color: COLORS.textDim
+    }
+  }, e.kcal, "kcal \xB7 P", e.protein, " C", e.carbs, " F", e.fat, " \xB7 ", e.time)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => removeEntry(e.id),
+    className: "p-1.5",
+    style: {
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.Trash, {
+    size: 14
+  }))))), /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.lifestyle
+    }
+  }, "Hydration"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-xs",
+    style: {
+      color: COLORS.lifestyle
+    }
+  }, hydration, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.textDim
+    }
+  }, "/", settings.targets?.water || DEFAULT_TARGETS.water, "ml"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5 flex-wrap"
+  }, [250, 500, 750, 1000].map(amt => /*#__PURE__*/React.createElement("button", {
+    key: amt,
+    onClick: () => onHydrationChange(hydration + amt),
+    className: "vec-mono text-[11px] px-2.5 py-1 rounded",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.lifestyle,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, "+", amt)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onHydrationChange(0),
+    className: "vec-mono text-[11px] px-2.5 py-1 rounded ml-auto",
+    style: {
+      color: COLORS.textMute
+    }
+  }, "reset"))));
+};
+
+// ──────────── TRAINING LOGGER ────────────
+const TrainingLogger = ({
+  training,
+  onChange
+}) => {
+  const [adding, setAdding] = useState(false);
+  const [t, setT] = useState({
+    type: "push",
+    duration: 60,
+    intensity: 7,
+    notes: ""
+  });
+  const sessions = Array.isArray(training) ? training : [];
+  const add = () => {
+    onChange([...sessions, {
+      ...t,
+      id: uid(),
+      time: nowTime()
+    }]);
+    setT({
+      type: "push",
+      duration: 60,
+      intensity: 7,
+      notes: ""
+    });
+    setAdding(false);
+  };
+  const remove = id => onChange(sessions.filter(s => s.id !== id));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, sessions.map(s => /*#__PURE__*/React.createElement(Card, {
+    key: s.id,
+    className: "p-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-sm font-medium uppercase"
+  }, s.type), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] mt-0.5",
+    style: {
+      color: COLORS.textDim
+    }
+  }, s.duration, "min \xB7 intensity ", s.intensity, "/10 \xB7 ", s.time), s.notes && /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-xs mt-1",
+    style: {
+      color: COLORS.textMute
+    }
+  }, s.notes)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => remove(s.id),
+    className: "p-1.5",
+    style: {
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.Trash, {
+    size: 14
+  }))))), adding ? /*#__PURE__*/React.createElement(Card, {
+    className: "p-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Type"), /*#__PURE__*/React.createElement("select", {
+    value: t.type,
+    onChange: e => setT({
+      ...t,
+      type: e.target.value
+    }),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, TRAINING_TYPES.map(tt => /*#__PURE__*/React.createElement("option", {
+    key: tt
+  }, tt)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Duration (min)"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: t.duration,
+    onChange: v => setT({
+      ...t,
+      duration: v
+    })
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline mb-1"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Intensity"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-sm",
+    style: {
+      color: COLORS.health
+    }
+  }, t.intensity, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.textDim
+    }
+  }, "/10"))), /*#__PURE__*/React.createElement(Slider, {
+    value: t.intensity,
+    onChange: v => setT({
+      ...t,
+      intensity: v
+    }),
+    color: COLORS.health
+  })), /*#__PURE__*/React.createElement(Input, {
+    value: t.notes,
+    onChange: v => setT({
+      ...t,
+      notes: v
+    }),
+    placeholder: "Notes (optional)"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: () => setAdding(false),
+    className: "flex-1"
+  }, "Cancel"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: add,
+    className: "flex-1"
+  }, "Add"))) : /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: () => setAdding(true),
+    className: "w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Plus, {
+    size: 14
+  }), " Add Session")));
+};
+
+// ──────────── HEALTH PANEL ────────────
+const HealthPanel = ({
+  health,
+  onChange
+}) => {
+  const setNum = (k, v) => {
+    const next = { ...health, [k]: v === "" ? 0 : Number(v) };
+    if (k === "time_awake") next.sleep_hours = calcSleepHours(next.fell_asleep, next.woke_up, next.time_awake);
+    onChange(next);
+  };
+  const setTime = (k, v) => {
+    const next = { ...health, [k]: v };
+    if (k === "fell_asleep" || k === "woke_up") next.sleep_hours = calcSleepHours(next.fell_asleep, next.woke_up, next.time_awake);
+    onChange(next);
+  };
+  const labelStyle = { color: COLORS.textDim };
+  const sectionStyle = { color: COLORS.health };
+  const computedH = calcSleepHours(health.fell_asleep, health.woke_up, health.time_awake);
+
+  const NumInput = (k, unit, placeholder) => /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: health[k] || "",
+    onChange: v => setNum(k, v),
+    placeholder: placeholder
+  });
+  const TimeInput = k => /*#__PURE__*/React.createElement("input", {
+    type: "time",
+    value: health[k] || "",
+    onChange: e => setTime(k, e.target.value),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: { background: COLORS.surface2, color: COLORS.text, border: `1px solid ${COLORS.border}`, fontVariantNumeric: "tabular-nums" }
+  });
+  const FieldLabel = (text, unit) => /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: labelStyle
+  }, text, " ", unit && /*#__PURE__*/React.createElement("span", null, "(", unit, ")"));
+
+  return /*#__PURE__*/React.createElement(Card, {
+    className: "p-4 space-y-4"
+  },
+    // ── Sleep section ──
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("div", { className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2", style: sectionStyle }, "Sleep"),
+      /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-2 gap-2" },
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Fell asleep"), TimeInput("fell_asleep")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Woke up"), TimeInput("woke_up")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Time awake", "min"), NumInput("time_awake", "min", "0")),
+        /*#__PURE__*/React.createElement("div", null,
+          FieldLabel("Total sleep", "computed"),
+          /*#__PURE__*/React.createElement("div", {
+            className: "vec-body w-full px-3 py-2 text-sm rounded-md",
+            style: { background: COLORS.surface, color: computedH ? COLORS.text : COLORS.textMute, border: `1px solid ${COLORS.border}`, fontVariantNumeric: "tabular-nums" }
+          }, computedH ? `${computedH} h` : "—")
+        ),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Score", "0-100"), NumInput("sleep_score", "0-100")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Deep", "min"), NumInput("deep_min", "min")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("REM", "min"), NumInput("rem_min", "min"))
+      )
+    ),
+    // ── Cardio section ──
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("div", { className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2", style: sectionStyle }, "Cardiovascular"),
+      /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-2 gap-2" },
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("RHR", "bpm"), NumInput("rhr", "bpm")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("HRV", "ms"), NumInput("hrv", "ms")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("BP Sys", "mmHg"), NumInput("bp_sys", "mmHg")),
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("BP Dia", "mmHg"), NumInput("bp_dia", "mmHg"))
+      )
+    ),
+    // ── Body section ──
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("div", { className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2", style: sectionStyle }, "Body"),
+      /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-2 gap-2" },
+        /*#__PURE__*/React.createElement("div", null, FieldLabel("Weight", "lb"), NumInput("weight", "lb"))
+      )
+    )
+  );
+};
+
+// ──────────── SEXUAL PANEL ────────────
+const SexualPanel = ({
+  sexual,
+  onChange
+}) => {
+  const set = (k, v) => onChange({
+    ...sexual,
+    [k]: v
+  });
+  return /*#__PURE__*/React.createElement(Card, {
+    className: "p-4 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline mb-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-sm"
+  }, "Morning Wood"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-sm",
+    style: {
+      color: COLORS.mood
+    }
+  }, sexual.morning_wood || 0, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.textDim
+    }
+  }, "/10"))), /*#__PURE__*/React.createElement(Slider, {
+    value: sexual.morning_wood || 0,
+    onChange: v => set("morning_wood", v),
+    color: COLORS.mood
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline mb-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-sm"
+  }, "Ejaculations"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-sm",
+    style: {
+      color: COLORS.mood
+    }
+  }, sexual.ejaculation || 0)), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5"
+  }, [0, 1, 2, 3, 4].map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    onClick: () => set("ejaculation", n),
+    className: "flex-1 vec-mono text-xs py-2 rounded",
+    style: {
+      background: (sexual.ejaculation || 0) === n ? COLORS.mood : COLORS.surface2,
+      color: (sexual.ejaculation || 0) === n ? "#000" : COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, n)))));
+};
+
+// ──────────── NOTES PANEL ────────────
+const NotesPanel = ({
+  notes,
+  onChange
+}) => /*#__PURE__*/React.createElement(Card, {
+  className: "p-4"
+}, /*#__PURE__*/React.createElement("textarea", {
+  value: notes || "",
+  onChange: e => onChange(e.target.value),
+  placeholder: "Anything worth remembering about today\u2026",
+  className: "vec-body w-full p-3 text-sm rounded-md outline-none resize-none",
+  rows: 6,
+  style: {
+    background: COLORS.surface2,
+    color: COLORS.text,
+    border: `1px solid ${COLORS.border}`
+  }
+}));
+
+// ──────────── HISTORY STRIP ────────────
+const HistoryStrip = ({
+  currentDate,
+  onPick
+}) => {
+  const days = recentKeys(14);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5 overflow-x-auto vec-scroll pb-1 -mx-4 px-4"
+  }, days.map(k => {
+    const d = dateFromKey(k);
+    const isToday = k === todayKey();
+    const isActive = k === currentDate;
+    return /*#__PURE__*/React.createElement("button", {
+      key: k,
+      onClick: () => onPick(k),
+      className: "flex flex-col items-center px-2.5 py-1.5 rounded shrink-0",
+      style: {
+        background: isActive ? COLORS.surface2 : "transparent",
+        border: `1px solid ${isActive ? COLORS.borderHi : "transparent"}`,
+        minWidth: 46
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[9px] uppercase",
+      style: {
+        color: isToday ? COLORS.peptides : COLORS.textDim
+      }
+    }, d.toLocaleDateString(undefined, {
+      weekday: "short"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "vec-display text-base font-semibold",
+      style: {
+        color: isActive ? COLORS.text : COLORS.textMute
+      }
+    }, d.getDate()));
+  }));
+};
+
+// ──────────── SETTINGS MODAL ────────────
+const SettingsModal = ({
+  open,
+  onClose,
+  settings,
+  onChange,
+  onClearAll
+}) => {
+  const [showKey, setShowKey] = useState(false);
+  const [keyTest, setKeyTest] = useState({
+    status: "idle",
+    msg: ""
+  });
+  const fileRef = useRef();
+  if (!open) return null;
+  const update = patch => onChange({
+    ...settings,
+    ...patch
+  });
+  const testKey = async () => {
+    if (!settings.apiKey) return;
+    setKeyTest({
+      status: "testing",
+      msg: ""
+    });
+    try {
+      await testApiKey(settings.apiKey, settings.macroModel || "claude-haiku-4-5-20251001");
+      setKeyTest({
+        status: "ok",
+        msg: "Key valid"
+      });
+    } catch (e) {
+      setKeyTest({
+        status: "fail",
+        msg: String(e.message || e).slice(0, 100)
+      });
+    }
+  };
+  const exportData = () => {
+    const all = store.rawAll();
+    const blob = new Blob([JSON.stringify(all, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vector-backup-${todayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  const importData = e => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        const count = Object.keys(data).length;
+        if (!confirm(`Import ${count} keys? Existing keys with the same name will be overwritten.`)) return;
+        for (const [k, v] of Object.entries(data)) {
+          localStorage.setItem(STORE_PREFIX + k, typeof v === "string" ? v : JSON.stringify(v));
+        }
+        alert("Import complete. Reloading.");
+        location.reload();
+      } catch (err) {
+        alert("Import failed: " + err.message);
+      }
+    };
+    reader.readAsText(f);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4",
+    style: {
+      background: "#000a"
+    },
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: e => e.stopPropagation(),
+    className: "w-full sm:max-w-lg max-h-[90vh] flex flex-col overflow-hidden",
+    style: {
+      background: COLORS.surface,
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between p-4 border-b",
+    style: {
+      borderColor: COLORS.border
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Configuration"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-lg font-semibold"
+  }, "Settings")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "p-1.5",
+    style: {
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.X, {
+    size: 18
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 overflow-y-auto vec-scroll p-4 space-y-5"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5",
+    style: {
+      color: COLORS.peptides
+    }
+  }, /*#__PURE__*/React.createElement(I.Key, {
+    size: 11
+  }), " API Key"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 relative"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: showKey ? "text" : "password",
+    value: settings.apiKey || "",
+    onChange: e => {
+      update({
+        apiKey: e.target.value
+      });
+      setKeyTest({
+        status: "idle",
+        msg: ""
+      });
+    },
+    placeholder: "sk-ant-api03-\u2026",
+    className: "vec-mono w-full px-3 py-2 pr-9 text-xs rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    },
+    autoComplete: "off",
+    spellCheck: "false"
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowKey(v => !v),
+    className: "absolute right-2 top-1/2 -translate-y-1/2 p-1",
+    style: {
+      color: COLORS.textMute
+    }
+  }, showKey ? /*#__PURE__*/React.createElement(I.EyeOff, {
+    size: 14
+  }) : /*#__PURE__*/React.createElement(I.Eye, {
+    size: 14
+  }))), /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: testKey,
+    disabled: !settings.apiKey || keyTest.status === "testing"
+  }, keyTest.status === "testing" ? /*#__PURE__*/React.createElement(I.Loader, {
+    size: 14,
+    className: "vec-spin"
+  }) : "Test")), keyTest.msg && /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px]",
+    style: {
+      color: keyTest.status === "ok" ? COLORS.success : COLORS.warn
+    }
+  }, keyTest.msg), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] leading-relaxed",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Get a key at ", /*#__PURE__*/React.createElement("a", {
+    href: "https://console.anthropic.com",
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      color: COLORS.peptides
+    }
+  }, "console.anthropic.com"), ". Stored only on this device."))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2",
+    style: {
+      color: COLORS.peptides
+    }
+  }, "Models"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Macros (food estimation)"), /*#__PURE__*/React.createElement("select", {
+    value: settings.macroModel || "claude-haiku-4-5-20251001",
+    onChange: e => update({
+      macroModel: e.target.value
+    }),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, MODELS.map(m => /*#__PURE__*/React.createElement("option", {
+    key: m.id,
+    value: m.id
+  }, m.label, " \u2014 ", m.desc)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Insights (analysis)"), /*#__PURE__*/React.createElement("select", {
+    value: settings.insightsModel || "claude-sonnet-4-6",
+    onChange: e => update({
+      insightsModel: e.target.value
+    }),
+    className: "vec-body w-full px-3 py-2 text-sm rounded-md outline-none",
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, MODELS.map(m => /*#__PURE__*/React.createElement("option", {
+    key: m.id,
+    value: m.id
+  }, m.label, " \u2014 ", m.desc)))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2",
+    style: {
+      color: COLORS.peptides
+    }
+  }, "Daily Targets"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, [["calories", "kcal"], ["protein", "g"], ["carbs", "g"], ["fat", "g"], ["water", "ml"]].map(([k, u]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "vec-mono text-[10px] uppercase tracking-wider mb-1.5 block",
+    style: {
+      color: COLORS.textDim
+    }
+  }, k, " (", u, ")"), /*#__PURE__*/React.createElement(Input, {
+    type: "number",
+    value: settings.targets?.[k] ?? DEFAULT_TARGETS[k],
+    onChange: v => update({
+      targets: {
+        ...(settings.targets || DEFAULT_TARGETS),
+        [k]: Number(v) || 0
+      }
+    })
+  }))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2",
+    style: {
+      color: COLORS.peptides
+    }
+  }, "Data"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: exportData,
+    className: "w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Download, {
+    size: 14
+  }), " Export Backup (JSON)")), /*#__PURE__*/React.createElement("input", {
+    ref: fileRef,
+    type: "file",
+    accept: "application/json",
+    onChange: importData,
+    className: "hidden"
+  }), /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: () => fileRef.current?.click(),
+    className: "w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Upload, {
+    size: 14
+  }), " Import Backup (JSON)")), /*#__PURE__*/React.createElement(Button, {
+    variant: "ghost",
+    onClick: () => {
+      if (confirm("Delete ALL Vector data on this device? This cannot be undone unless you have a backup.")) {
+        onClearAll();
+        onClose();
+      }
+    },
+    className: "w-full",
+    style: {
+      color: COLORS.warn
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Trash, {
+    size: 14
+  }), " Clear All Data")))), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] pt-2 border-t leading-relaxed",
+    style: {
+      color: COLORS.textDim,
+      borderColor: COLORS.border
+    }
+  }, "Vector v1.0 \xB7 all data stored locally \xB7 regular backups recommended \xB7 install as PWA via Share \u2192 Add to Home Screen"))));
+};
+
+// ──────────── TODAY VIEW ────────────
+const TodayView = ({
+  day,
+  allDays,
+  settings,
+  onJump
+}) => {
+  const totals = computeTotals(day.meals || []);
+  const subCount = (day.substances || []).length;
+  const trainCount = Array.isArray(day.training) ? day.training.length : 0;
+  const trainMin = Array.isArray(day.training) ? day.training.reduce((a, t) => a + (t.duration || 0), 0) : 0;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement(SerumCurve, {
+    allDays: allDays
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => onJump("subs"),
+    className: "text-left"
+  }, /*#__PURE__*/React.createElement(StatTile, {
+    label: "Substances",
+    value: subCount,
+    unit: "",
+    color: COLORS.peptides,
+    icon: I.Syringe,
+    sub: "logged today"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onJump("food"),
+    className: "text-left"
+  }, /*#__PURE__*/React.createElement(StatTile, {
+    label: "Calories",
+    value: totals.kcal,
+    unit: `/${settings.targets?.calories || DEFAULT_TARGETS.calories}`,
+    color: COLORS.lifestyle,
+    icon: I.Flame,
+    sub: `P${totals.protein} C${totals.carbs} F${totals.fat}`
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onJump("training"),
+    className: "text-left"
+  }, /*#__PURE__*/React.createElement(StatTile, {
+    label: "Training",
+    value: trainCount,
+    unit: trainCount === 1 ? "session" : "sessions",
+    color: COLORS.health,
+    icon: I.Dumbbell,
+    sub: trainMin ? `${trainMin} minutes total` : "—"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onJump("health"),
+    className: "text-left"
+  }, /*#__PURE__*/React.createElement(StatTile, {
+    label: "Sleep",
+    value: day.health?.sleep_hours || "—",
+    unit: day.health?.sleep_hours ? "h" : "",
+    color: COLORS.sleep,
+    icon: I.Moon,
+    sub: day.health?.sleep_score ? `score ${day.health.sleep_score}` : "—"
+  }))), /*#__PURE__*/React.createElement(MoodRing, {
+    mood: day.mood
+  }));
+};
+
+// ──────────── LOG VIEW ────────────
+const SECTIONS = [{
+  id: "subs",
+  label: "Substances",
+  icon: I.Syringe,
+  color: COLORS.peptides
+}, {
+  id: "food",
+  label: "Food",
+  icon: I.Apple,
+  color: COLORS.lifestyle
+}, {
+  id: "training",
+  label: "Training",
+  icon: I.Dumbbell,
+  color: COLORS.health
+}, {
+  id: "mood",
+  label: "Mood",
+  icon: I.Brain,
+  color: COLORS.mood
+}, {
+  id: "health",
+  label: "Health",
+  icon: I.Heart,
+  color: COLORS.health
+}, {
+  id: "sexual",
+  label: "Sexual",
+  icon: I.Activity,
+  color: COLORS.mood
+}, {
+  id: "notes",
+  label: "Notes",
+  icon: I.FileText,
+  color: COLORS.text
+}];
+const LogView = ({
+  day,
+  settings,
+  activeSection,
+  onSection,
+  onSetDay,
+  onOpenPicker
+}) => {
+  const update = patch => onSetDay({
+    ...day,
+    ...patch
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5 overflow-x-auto vec-scroll pb-1 -mx-4 px-4"
+  }, SECTIONS.map(s => /*#__PURE__*/React.createElement(Pill, {
+    key: s.id,
+    onClick: () => onSection(s.id),
+    active: activeSection === s.id,
+    color: s.color
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement(s.icon, {
+    size: 11
+  }), " ", s.label)))), activeSection === "subs" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: onOpenPicker,
+    className: "w-full"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Plus, {
+    size: 14
+  }), " Add Substance")), /*#__PURE__*/React.createElement(SubstanceList, {
+    substances: day.substances || [],
+    onRemove: id => update({
+      substances: (day.substances || []).filter(s => s.id !== id)
+    })
+  })), activeSection === "food" && /*#__PURE__*/React.createElement(FoodLogger, {
+    meals: day.meals || [],
+    hydration: day.hydration_ml || 0,
+    onMealsChange: meals => update({
+      meals
+    }),
+    onHydrationChange: hydration_ml => update({
+      hydration_ml
+    }),
+    settings: settings
+  }), activeSection === "training" && /*#__PURE__*/React.createElement(TrainingLogger, {
+    training: day.training || [],
+    onChange: training => update({
+      training
+    })
+  }), activeSection === "mood" && /*#__PURE__*/React.createElement(MoodSliders, {
+    mood: day.mood,
+    onChange: (k, v) => update({
+      mood: {
+        ...day.mood,
+        [k]: v
+      }
+    })
+  }), activeSection === "health" && /*#__PURE__*/React.createElement(HealthPanel, {
+    health: day.health,
+    onChange: health => update({
+      health
+    })
+  }), activeSection === "sexual" && /*#__PURE__*/React.createElement(SexualPanel, {
+    sexual: day.sexual,
+    onChange: sexual => update({
+      sexual
+    })
+  }), activeSection === "notes" && /*#__PURE__*/React.createElement(NotesPanel, {
+    notes: day.notes,
+    onChange: notes => update({
+      notes
+    })
+  }));
+};
+
+// ──────────── TRENDS VIEW ────────────
+const METRIC_GROUPS = [{
+  id: "mood",
+  label: "Mood",
+  color: COLORS.mood,
+  fields: [{
+    k: "mood",
+    label: "Mood",
+    path: ["mood", "mood"]
+  }, {
+    k: "wellbeing",
+    label: "Wellbeing",
+    path: ["mood", "wellbeing"]
+  }, {
+    k: "anxiety",
+    label: "Anxiety",
+    path: ["mood", "anxiety"]
+  }, {
+    k: "motivation",
+    label: "Motivation",
+    path: ["mood", "motivation"]
+  }, {
+    k: "libido",
+    label: "Libido",
+    path: ["mood", "libido"]
+  }, {
+    k: "pump",
+    label: "Pump",
+    path: ["mood", "pump"]
+  }]
+}, {
+  id: "sleep",
+  label: "Sleep",
+  color: COLORS.sleep,
+  fields: [{
+    k: "sleep_hours",
+    label: "Hours",
+    path: ["health", "sleep_hours"]
+  }, {
+    k: "sleep_score",
+    label: "Score",
+    path: ["health", "sleep_score"]
+  }, {
+    k: "deep_min",
+    label: "Deep (min)",
+    path: ["health", "deep_min"]
+  }, {
+    k: "rem_min",
+    label: "REM (min)",
+    path: ["health", "rem_min"]
+  }, {
+    k: "time_awake",
+    label: "Time awake (min)",
+    path: ["health", "time_awake"]
+  }]
+}, {
+  id: "cardio",
+  label: "Cardiovascular",
+  color: COLORS.health,
+  fields: [{
+    k: "rhr",
+    label: "RHR",
+    path: ["health", "rhr"]
+  }, {
+    k: "hrv",
+    label: "HRV",
+    path: ["health", "hrv"]
+  }, {
+    k: "bp_sys",
+    label: "Sys",
+    path: ["health", "bp_sys"]
+  }, {
+    k: "bp_dia",
+    label: "Dia",
+    path: ["health", "bp_dia"]
+  }]
+}, {
+  id: "body",
+  label: "Body",
+  color: COLORS.lifestyle,
+  fields: [{
+    k: "weight",
+    label: "Weight",
+    path: ["health", "weight"]
+  }, {
+    k: "kcal",
+    label: "kcal",
+    path: ["__totals", "kcal"]
+  }, {
+    k: "protein",
+    label: "Protein",
+    path: ["__totals", "protein"]
+  }]
+}, {
+  id: "androgenic",
+  label: "Androgenic",
+  color: COLORS.steroids,
+  fields: [{
+    k: "morning_wood",
+    label: "Morning Wood",
+    path: ["sexual", "morning_wood"]
+  }, {
+    k: "ejaculation",
+    label: "Ejaculations",
+    path: ["sexual", "ejaculation"]
+  }, {
+    k: "aggression",
+    label: "Aggression",
+    path: ["mood", "aggression"]
+  }]
+}];
+const RANGE_OPTIONS = [7, 14, 30, 90];
+const getPath = (obj, path) => {
+  let v = obj;
+  for (const p of path) {
+    v = v?.[p];
+    if (v == null) return null;
+  }
+  return v;
+};
+const TrendsView = ({
+  allDays
+}) => {
+  const [range, setRange] = useState(14);
+  const [groupId, setGroupId] = useState("mood");
+  const group = METRIC_GROUPS.find(g => g.id === groupId);
+  const data = useMemo(() => {
+    const keys = recentKeys(range);
+    return keys.map(k => {
+      const day = allDays.find(d => d.date === k);
+      const totals = day?.meals ? computeTotals(day.meals) : {
+        kcal: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0
+      };
+      const dayWithTotals = day ? {
+        ...day,
+        __totals: totals
+      } : {
+        date: k,
+        __totals: totals
+      };
+      const row = {
+        date: k,
+        label: dateFromKey(k).toLocaleDateString(undefined, {
+          month: "numeric",
+          day: "numeric"
+        })
+      };
+      for (const f of group.fields) {
+        const v = getPath(dayWithTotals, f.path);
+        row[f.k] = v || 0;
+      }
+      return row;
+    });
+  }, [allDays, range, groupId]);
+  const fieldStats = useMemo(() => {
+    return group.fields.map(f => {
+      const vals = data.map(r => r[f.k]).filter(v => v != null && v !== 0);
+      if (!vals.length) return {
+        ...f,
+        avg: 0,
+        min: 0,
+        max: 0,
+        n: 0
+      };
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      return {
+        ...f,
+        avg: avg.toFixed(1),
+        min: Math.min(...vals),
+        max: Math.max(...vals),
+        n: vals.length
+      };
+    });
+  }, [data, group]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5 overflow-x-auto vec-scroll pb-1 -mx-4 px-4"
+  }, METRIC_GROUPS.map(g => /*#__PURE__*/React.createElement(Pill, {
+    key: g.id,
+    onClick: () => setGroupId(g.id),
+    active: groupId === g.id,
+    color: g.color
+  }, g.label))), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5"
+  }, RANGE_OPTIONS.map(r => /*#__PURE__*/React.createElement(Pill, {
+    key: r,
+    onClick: () => setRange(r),
+    active: range === r,
+    color: COLORS.text
+  }, r, "d"))), group.fields.map(f => {
+    const stats = fieldStats.find(s => s.k === f.k);
+    const has = stats && stats.n > 0;
+    return /*#__PURE__*/React.createElement(Card, {
+      key: f.k,
+      className: "p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline justify-between mb-2"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+      style: {
+        color: group.color
+      }
+    }, f.label), /*#__PURE__*/React.createElement("div", {
+      className: "vec-display text-xl font-semibold mt-0.5"
+    }, has ? stats.avg : "—", /*#__PURE__*/React.createElement("span", {
+      className: "vec-mono text-xs ml-1",
+      style: {
+        color: COLORS.textDim
+      }
+    }, "avg"))), has && /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] text-right",
+      style: {
+        color: COLORS.textDim
+      }
+    }, /*#__PURE__*/React.createElement("div", null, "min ", stats.min), /*#__PURE__*/React.createElement("div", null, "max ", stats.max), /*#__PURE__*/React.createElement("div", null, "n=", stats.n))), has ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        height: 120
+      }
+    }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(LineChart, {
+      data: data,
+      margin: {
+        top: 4,
+        right: 4,
+        bottom: 4,
+        left: -20
+      }
+    }, /*#__PURE__*/React.createElement(CartesianGrid, {
+      stroke: COLORS.border,
+      strokeDasharray: "2 4",
+      vertical: false
+    }), /*#__PURE__*/React.createElement(XAxis, {
+      dataKey: "label",
+      tick: {
+        fill: COLORS.textDim,
+        fontSize: 9,
+        fontFamily: "JetBrains Mono"
+      },
+      stroke: COLORS.border
+    }), /*#__PURE__*/React.createElement(YAxis, {
+      tick: {
+        fill: COLORS.textDim,
+        fontSize: 9,
+        fontFamily: "JetBrains Mono"
+      },
+      stroke: COLORS.border
+    }), /*#__PURE__*/React.createElement(Tooltip, {
+      contentStyle: {
+        background: COLORS.surface2,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 6,
+        fontSize: 11
+      },
+      labelStyle: {
+        color: COLORS.textMute
+      }
+    }), /*#__PURE__*/React.createElement(Line, {
+      type: "monotone",
+      dataKey: f.k,
+      stroke: group.color,
+      strokeWidth: 2,
+      dot: {
+        r: 2.5,
+        fill: group.color
+      },
+      connectNulls: true
+    })))) : /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[10px] text-center py-4",
+      style: {
+        color: COLORS.textDim
+      }
+    }, "NO DATA"));
+  }));
+};
+
+// ──────────── INSIGHTS VIEW ────────────
+const PRESETS = [{
+  id: "sleep",
+  label: "Sleep patterns",
+  prompt: "Focus specifically on sleep quality, fragmentation, deep/REM proportions, and any correlations with substances taken that day or evening. Identify what helps and what hurts."
+}, {
+  id: "training",
+  label: "Training & recovery",
+  prompt: "Look at training load, intensity, and recovery markers (RHR, HRV, sleep, mood the next day). Where is recovery breaking down? Where is it strong?"
+}, {
+  id: "hormones",
+  label: "Hormone effects",
+  prompt: "Analyze how androgenic markers (morning wood, libido, aggression, mood) and physical markers (BP, weight, RHR) move in response to substance timing and dosing patterns."
+}, {
+  id: "weekly",
+  label: "Weekly review",
+  prompt: "Give me a tight week-in-review: what worked, what didn't, what needs adjustment, what to watch next week."
+}, {
+  id: "anomaly",
+  label: "Anomalies",
+  prompt: "Find days that stand out — unusually bad sleep, unexpected mood shifts, surprising recovery wins. Hypothesize causes from the surrounding data."
+}];
+const renderMarkdown = md => {
+  const lines = md.split("\n");
+  const out = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.startsWith("## ")) {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-display text-base font-semibold mt-4 mb-1",
+        style: {
+          color: COLORS.peptides
+        }
+      }, line.slice(3)));
+    } else if (line.startsWith("### ")) {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-display text-sm font-semibold mt-3 mb-1"
+      }, line.slice(4)));
+    } else if (line.startsWith("# ")) {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-display text-lg font-bold mt-4 mb-2"
+      }, line.slice(2)));
+    } else if (line.match(/^[-*] /)) {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-body text-sm flex gap-2 ml-1"
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: COLORS.peptides
+        }
+      }, "\xB7"), /*#__PURE__*/React.createElement("span", null, formatInline(line.slice(2)))));
+    } else if (line.match(/^\d+\. /)) {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-body text-sm flex gap-2 ml-1"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "vec-mono",
+        style: {
+          color: COLORS.peptides
+        }
+      }, line.match(/^\d+/)[0], "."), /*#__PURE__*/React.createElement("span", null, formatInline(line.replace(/^\d+\. /, "")))));
+    } else if (line.trim() === "") {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        style: {
+          height: 6
+        }
+      }));
+    } else {
+      out.push(/*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "vec-body text-sm"
+      }, formatInline(line)));
+    }
+    i++;
+  }
+  return out;
+};
+const formatInline = s => {
+  const parts = [];
+  let rest = s;
+  let key = 0;
+  while (rest.length) {
+    const m = rest.match(/\*\*(.+?)\*\*|`([^`]+)`/);
+    if (!m) {
+      parts.push(/*#__PURE__*/React.createElement("span", {
+        key: key++
+      }, rest));
+      break;
+    }
+    if (m.index > 0) parts.push(/*#__PURE__*/React.createElement("span", {
+      key: key++
+    }, rest.slice(0, m.index)));
+    if (m[1]) parts.push(/*#__PURE__*/React.createElement("strong", {
+      key: key++,
+      className: "font-semibold",
+      style: {
+        color: COLORS.text
+      }
+    }, m[1]));else if (m[2]) parts.push(/*#__PURE__*/React.createElement("code", {
+      key: key++,
+      className: "vec-mono text-xs px-1 py-0.5 rounded",
+      style: {
+        background: COLORS.surface2,
+        color: COLORS.peptides
+      }
+    }, m[2]));
+    rest = rest.slice(m.index + m[0].length);
+  }
+  return parts;
+};
+const InsightsView = ({
+  allDays,
+  settings
+}) => {
+  const [range, setRange] = useState(14);
+  const [prompt, setPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [output, setOutput] = useState("");
+  const hasKey = Boolean(settings.apiKey);
+  const run = async customPrompt => {
+    if (!hasKey) {
+      setErr("Add API key in settings to enable insights");
+      return;
+    }
+    const keys = recentKeys(range);
+    const logs = keys.map(k => allDays.find(d => d.date === k)).filter(Boolean);
+    if (!logs.length) {
+      setErr("No data in selected range");
+      return;
+    }
+    setBusy(true);
+    setErr("");
+    setOutput("");
+    try {
+      const out = await generateInsights(logs, range, customPrompt || prompt, settings);
+      setOutput(out);
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-1.5"
+  }, RANGE_OPTIONS.map(r => /*#__PURE__*/React.createElement(Pill, {
+    key: r,
+    onClick: () => setRange(r),
+    active: range === r,
+    color: COLORS.text
+  }, r, "d"))), /*#__PURE__*/React.createElement(Card, {
+    className: "p-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em]",
+    style: {
+      color: COLORS.peptides
+    }
+  }, "Custom Prompt"), /*#__PURE__*/React.createElement("textarea", {
+    value: prompt,
+    onChange: e => setPrompt(e.target.value),
+    placeholder: "Ask anything about your last N days of data\u2026",
+    className: "vec-body w-full p-3 text-sm rounded-md outline-none resize-none",
+    rows: 3,
+    style: {
+      background: COLORS.surface2,
+      color: COLORS.text,
+      border: `1px solid ${COLORS.border}`
+    }
+  }), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    onClick: () => run(null),
+    disabled: busy || !prompt.trim(),
+    className: "w-full"
+  }, busy ? /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Loader, {
+    size: 14,
+    className: "vec-spin"
+  }), " analyzing ", range, " days\u2026") : /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement(I.Sparkles, {
+    size: 14
+  }), " Generate Insight"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-2",
+    style: {
+      color: COLORS.textDim
+    }
+  }, "Presets"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    onClick: () => run(p.prompt),
+    disabled: busy,
+    className: "text-left p-3 rounded-md transition-colors",
+    style: {
+      background: COLORS.surface,
+      border: `1px solid ${COLORS.border}`,
+      opacity: busy ? 0.5 : 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-sm font-semibold"
+  }, p.label), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] mt-1 line-clamp-2",
+    style: {
+      color: COLORS.textDim
+    }
+  }, p.prompt.slice(0, 60), "\u2026"))))), !hasKey && /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 items-start"
+  }, /*#__PURE__*/React.createElement(I.Alert, {
+    size: 14,
+    style: {
+      color: COLORS.warn,
+      marginTop: 2
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "vec-body text-xs",
+    style: {
+      color: COLORS.textMute
+    }
+  }, "Add your Anthropic API key in settings to enable AI insights."))), err && /*#__PURE__*/React.createElement(Card, {
+    className: "p-3",
+    style: {
+      borderColor: COLORS.warn
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[11px]",
+    style: {
+      color: COLORS.warn
+    }
+  }, err)), output && /*#__PURE__*/React.createElement(Card, {
+    className: "p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[10px] uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5",
+    style: {
+      color: COLORS.peptides
+    }
+  }, /*#__PURE__*/React.createElement(I.Lightbulb, {
+    size: 11
+  }), " Analysis"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1"
+  }, renderMarkdown(output))));
+};
+
+// ──────────── APP ────────────
+const App = () => {
+  const [tab, setTab] = useState("today");
+  const [currentDate, setCurrentDate] = useState(todayKey());
+  const [logSection, setLogSection] = useState("subs");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerPrefill, setPickerPrefill] = useState(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState(() => ({
+    apiKey: "",
+    macroModel: "claude-haiku-4-5-20251001",
+    insightsModel: "claude-sonnet-4-6",
+    targets: {
+      ...DEFAULT_TARGETS
+    },
+    ...(store.get("settings") || {})
+  }));
+  const [days, setDays] = useState(() => {
+    const keys = store.list("log:");
+    const out = {};
+    for (const k of keys) {
+      const id = k.replace("log:", "");
+      const d = store.get(k);
+      if (d) out[id] = migrateDay(d);
+    }
+    return out;
+  });
+
+  // Persist settings
+  useEffect(() => {
+    store.set("settings", settings);
+  }, [settings]);
+
+  // Date rollover detection
+  useEffect(() => {
+    const id = setInterval(() => {
+      const t = todayKey();
+      if (t !== currentDate && currentDate === todayKey(new Date(Date.now() - 60000))) {
+        setCurrentDate(t);
+      }
+    }, 30000);
+    return () => clearInterval(id);
+  }, [currentDate]);
+  const day = useMemo(() => migrateDay(days[currentDate] || blankDay(currentDate)), [days, currentDate]);
+  const allDays = useMemo(() => Object.values(days), [days]);
+  const setDay = useCallback(nextDay => {
+    setDays(prev => ({
+      ...prev,
+      [nextDay.date]: nextDay
+    }));
+    store.set(`log:${nextDay.date}`, nextDay);
+  }, []);
+  const onPickSubstance = sub => {
+    setPickerPrefill({
+      ...sub
+    });
+    setPickerOpen(false);
+    setEditorOpen(true);
+  };
+  const onSaveSubstance = entry => {
+    const newSub = {
+      id: uid(),
+      libraryId: entry.id,
+      name: entry.name,
+      cat: entry.cat,
+      h: entry.h,
+      dose: Number(entry.dose) || 0,
+      unit: entry.unit,
+      route: entry.route,
+      time: entry.time,
+      notes: entry.notes || ""
+    };
+    setDay({
+      ...day,
+      substances: [...(day.substances || []), newSub]
+    });
+    setEditorOpen(false);
+    setPickerPrefill(null);
+  };
+  const onClearAll = () => {
+    store.clearAll();
+    setDays({});
+    setSettings({
+      apiKey: "",
+      macroModel: "claude-haiku-4-5-20251001",
+      insightsModel: "claude-sonnet-4-6",
+      targets: {
+        ...DEFAULT_TARGETS
+      }
+    });
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "vec-grain",
+    style: {
+      minHeight: "100vh",
+      background: COLORS.bg,
+      color: COLORS.text,
+      paddingBottom: 96
+    }
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "sticky top-0 z-30 px-4 py-3",
+    style: {
+      background: `${COLORS.bg}ee`,
+      backdropFilter: "blur(8px)",
+      borderBottom: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-7 h-7 rounded-md flex items-center justify-center",
+    style: {
+      background: `linear-gradient(135deg, ${COLORS.peptides}, ${COLORS.steroids})`
+    }
+  }, /*#__PURE__*/React.createElement(I.Crosshair, {
+    size: 16,
+    style: {
+      color: "#000"
+    }
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "vec-display text-base font-semibold leading-none"
+  }, "Vector"), /*#__PURE__*/React.createElement("div", {
+    className: "vec-mono text-[9px] uppercase tracking-[0.2em] leading-tight mt-0.5",
+    style: {
+      color: COLORS.textDim
+    }
+  }, fmtDate(dateFromKey(currentDate))))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSettingsOpen(true),
+    className: "p-2 rounded-md",
+    style: {
+      background: COLORS.surface,
+      border: `1px solid ${COLORS.border}`,
+      color: COLORS.textMute
+    }
+  }, /*#__PURE__*/React.createElement(I.Settings, {
+    size: 14
+  }))), /*#__PURE__*/React.createElement(HistoryStrip, {
+    currentDate: currentDate,
+    onPick: setCurrentDate
+  })), /*#__PURE__*/React.createElement("main", {
+    className: "px-4 py-4"
+  }, tab === "today" && /*#__PURE__*/React.createElement(TodayView, {
+    day: day,
+    allDays: allDays,
+    settings: settings,
+    onJump: s => {
+      setTab("log");
+      setLogSection(s);
+    }
+  }), tab === "log" && /*#__PURE__*/React.createElement(LogView, {
+    day: day,
+    settings: settings,
+    activeSection: logSection,
+    onSection: setLogSection,
+    onSetDay: setDay,
+    onOpenPicker: () => setPickerOpen(true)
+  }), tab === "trends" && /*#__PURE__*/React.createElement(TrendsView, {
+    allDays: allDays
+  }), tab === "insights" && /*#__PURE__*/React.createElement(InsightsView, {
+    allDays: allDays,
+    settings: settings
+  })), /*#__PURE__*/React.createElement("nav", {
+    className: "fixed bottom-0 left-0 right-0 z-30",
+    style: {
+      background: `${COLORS.bg}ee`,
+      backdropFilter: "blur(12px)",
+      borderTop: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex max-w-md mx-auto"
+  }, [{
+    id: "today",
+    label: "Today",
+    icon: I.Home
+  }, {
+    id: "log",
+    label: "Log",
+    icon: I.Plus
+  }, {
+    id: "trends",
+    label: "Trends",
+    icon: I.TrendingUp
+  }, {
+    id: "insights",
+    label: "Insights",
+    icon: I.Sparkles
+  }].map(n => {
+    const active = tab === n.id;
+    return /*#__PURE__*/React.createElement("button", {
+      key: n.id,
+      onClick: () => setTab(n.id),
+      className: "flex-1 flex flex-col items-center gap-1 py-3",
+      style: {
+        color: active ? COLORS.text : COLORS.textDim
+      }
+    }, /*#__PURE__*/React.createElement(n.icon, {
+      size: 18
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "vec-mono text-[9px] uppercase tracking-wider"
+    }, n.label), active && /*#__PURE__*/React.createElement("div", {
+      className: "absolute bottom-0 h-[2px] w-8 rounded-t",
+      style: {
+        background: COLORS.peptides
+      }
+    }));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: "env(safe-area-inset-bottom)"
+    }
+  })), /*#__PURE__*/React.createElement(SubstancePicker, {
+    open: pickerOpen,
+    onClose: () => setPickerOpen(false),
+    onPick: onPickSubstance
+  }), /*#__PURE__*/React.createElement(SubstanceEditor, {
+    open: editorOpen,
+    onClose: () => {
+      setEditorOpen(false);
+      setPickerPrefill(null);
+    },
+    onSave: onSaveSubstance,
+    prefill: pickerPrefill
+  }), /*#__PURE__*/React.createElement(SettingsModal, {
+    open: settingsOpen,
+    onClose: () => setSettingsOpen(false),
+    settings: settings,
+    onChange: setSettings,
+    onClearAll: onClearAll
+  }));
+};
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
+</script>
+</body>
+</html>
